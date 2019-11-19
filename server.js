@@ -38,6 +38,16 @@ app.get("/", function(req, res) {
 // This route will retrieve all of the data
 // from the scrapedData collection as a json (this will be populated
 // by the data you scrape using the next route)
+app.get("/all", function(req, res) {
+  db.scrapedData.find({}, function(err, data) {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      res.json(data);
+    }
+  });
+});
 
 // Route 2
 // =======
@@ -47,6 +57,31 @@ app.get("/", function(req, res) {
 // TIP: Think back to how you pushed website data
 // into an empty array in the last class. How do you
 // push it into a MongoDB collection instead?
+app.get("/scrape", function(req, res) {
+  axios.get("https://www.giantbomb.com").then(function(response) {
+    var $ = cheerio.load(response.data);
+    
+    $("#wrapper > section.site-container.vertical-spacing > div.pod.pod--carousel-strip.frontdoor-pod.carousel__latest-content > div > div.js-carousel-strip__viewport.carousel-strip__viewport > div > ul > li").each(function(i, element) {
+
+      var title = $(element).find("p").first().text();
+      var link = "https://www.giantbomb.com" + $(element).find("a").attr("href");
+    
+      db.scrapedData.insert({
+        title: title,
+        link: link
+      }, function(err, insert) {
+        if (err) {
+          console.log(err);
+        }
+        else {
+          console.log(insert);
+        }
+      });
+    });
+  }).then(function() {
+    res.send("Data scraped!");
+  });
+});
 
 /* -/-/-/-/-/-/-/-/-/-/-/-/- */
 

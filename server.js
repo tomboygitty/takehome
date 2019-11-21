@@ -66,17 +66,19 @@ app.get("/scrape", function(req, res) {
       var title = $(element).find("p").first().text();
       var link = "https://www.giantbomb.com" + $(element).find("a").attr("href");
     
-      db.scrapedData.insert({
-        title: title,
-        link: link
-      }, function(err, insert) {
-        if (err) {
-          console.log(err);
-        }
-        else {
-          console.log(insert);
-        }
-      });
+      if (title && link) {
+        db.scrapedData.insert({
+          title: title,
+          link: link
+        }, function(err, insert) {
+          if (err) {
+            console.log(err);
+          }
+          else {
+            console.log(insert);
+          }
+        });
+      }
     });
   }).then(function() {
     res.send("Data scraped!");
